@@ -1,0 +1,121 @@
+﻿@model List<Contact>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css">
+
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #ddd;
+    }
+
+    .edit-button, .delete-button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .delete-button {
+        background-color: #f44336;
+    }
+</style>
+
+<link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+<table id="contactTable" class="display">
+    <tr>
+        <th>Name</th>
+        <th>Date of Birth</th>
+        <th>Married</th>
+        <th>Phone</th>
+        <th>Salary</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    @foreach (var contact in Model)
+    {
+        <tr>
+            <td>@contact.Name</td>
+            <td>@contact.DateOfBirth.ToShortDateString()</td>
+            <td>@(contact.Married ? "Yes" : "No")</td>
+            <td>@contact.Phone</td>
+            <td>@contact.Salary</td>
+            <td><button onclick="editContact(@contact.Id)">Edit</button></td>
+            <td>
+                <form method="post" asp-action="DeleteContact">
+                    <input type="hidden" name="id" value="@contact.Id" />
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>
+
+<form method="post" enctype="multipart/form-data" asp-action="UploadCSV">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+</form>
+
+<form method="post" asp-action="AddContact">
+    <!-- Форма для додавання контакту -->
+</form>
+
+<script>
+
+    $(document).ready(function () {
+        $('#contactTable').DataTable();
+    });
+
+        // Визначення функцій для кнопок редагування та видалення
+        function editContact(id) {
+            // Перенаправлення на сторінку редагування контакту з використанням Id
+            window.location.href = "/Contacts/Edit/" + id;
+        }
+
+        function deleteContact(id) {
+            // Підтвердження видалення контакту
+            if (confirm("Are you sure you want to delete this contact?")) {
+                // Відправка POST-запиту на видалення контакту з використанням Id
+                $.ajax({
+                    url: '/Contacts/Delete/' + id,
+                    method: 'POST',
+                    success: function () {
+                        // Перезавантаження сторінки після успішного видалення
+                        location.reload();
+                    },
+                    error: function () {
+                        console.error("Failed to delete contact");
+                    }
+                });
+            }
+        }
+    });
+</script>
